@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Italiana&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles copy.css">
+    <!-- Add Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        /* Font declarations */
+        @font-face {
+            font-family: 'Lexend';
+            src: url('Lexend copy/Lexend-VariableFont_wght.ttf') format('truetype-variations');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Italiana';
+            src: url('Italiana (1) copy/Italiana-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* Base styles */
+        body {
+            font-family: 'Lexend', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #69657B;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            background-color: #f5f5f5;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Italiana', serif;
+            color: #69657B;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            text-shadow: 0.5px 0 0 currentColor;
+            letter-spacing: 0.02em;
+        }
+
+        .error {
+            border-color: #ff4444 !important;
+        }
+        
+        .valid {
+            border-color: #4CAF50 !important;
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .char-count {
+            font-size: 0.75rem;
+            color: #69657B;
+            margin-top: 0.25rem;
+            display: block;
+            text-align: right;
+        }
+
+        .char-count.warning {
+            color: #ff4444;
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #69657B;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            line-height: 1.5;
+            background: white;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #507C65;
+            box-shadow: 0 0 0 2px rgba(80, 124, 101, 0.1);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #999;
+            opacity: 1;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #69657B;
+            padding: 0.5rem;
+            line-height: 1;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #507C65;
+        }
+
+        .modal-body {
+            margin-top: 1rem;
+        }
+
+        .modal-body h2 {
+            color: #507C65;
+            margin-bottom: 1rem;
+        }
+
+        .submission-details {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .submission-details h3 {
+            color: #69657B;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .message-content {
+            background-color: #f5f5f5;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            white-space: pre-wrap;
+        }
+
+        /* Form Container Styles */
+        .hero {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero h1 {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 1rem;
+            background-color: #507C65;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        button[type="submit"]:hover:not(:disabled) {
+            background-color: #3d5d4a;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <a href="/" class="logo">
+                <span class="logo-text">Contact Us</span>
+            </a>
+        </header>
+
+        <section>
+            <div class="hero">
+                <h1>Get in Touch</h1>
+                <form id="contactForm" @submit.prevent="submitForm" ref="form">
+                    <div class="form-group" :class="{ 'focused': focusedField === 'name' }">
+                        <label for="name" :class="{ 'active': formData.name }">Name</label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            v-model="formData.name" 
+                            @input="validateField('name')"
+                            @blur="validateField('name'); focusedField = null"
+                            @focus="focusedField = 'name'"
+                            placeholder="Your name" 
+                            required
+                            :class="{ 'error': errors.name, 'valid': formData.name && !errors.name }"
+                            ref="nameInput"
+                        >
+                        <span class="error-message" v-if="errors.name">{{ errors.name }}</span>
+                    </div>
+
+                    <div class="form-group" :class="{ 'focused': focusedField === 'email' }">
+                        <label for="email" :class="{ 'active': formData.email }">Email</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            v-model="formData.email" 
+                            @input="validateField('email')"
+                            @blur="validateField('email'); focusedField = null"
+                            @focus="focusedField = 'email'"
+                            placeholder="your.email@example.com" 
+                            required
+                            :class="{ 'error': errors.email, 'valid': formData.email && !errors.email }"
+                            ref="emailInput"
+                        >
+                        <span class="error-message" v-if="errors.email">{{ errors.email }}</span>
+                    </div>
+
+                    <div class="form-group" :class="{ 'focused': focusedField === 'message' }">
+                        <label for="message" :class="{ 'active': formData.message }">Message</label>
+                        <textarea 
+                            id="message" 
+                            v-model="formData.message" 
+                            @input="validateField('message')"
+                            @blur="validateField('message'); focusedField = null"
+                            @focus="focusedField = 'message'"
+                            rows="5" 
+                            placeholder="Your message" 
+                            required
+                            :class="{ 'error': errors.message, 'valid': formData.message && !errors.message }"
+                            ref="messageInput"
+                        ></textarea>
+                        <span class="error-message" v-if="errors.message">{{ errors.message }}</span>
+                        <span class="char-count" :class="{ 'warning': isMessageTooLong }">
+                            {{ formData.message.length }}/500 characters
+                        </span>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        :disabled="isSubmitting || !isFormValid"
+                        :class="{ 'shake': showShake }"
+                    >
+                        {{ isSubmitting ? 'Sending...' : 'Send Message' }}
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Modal Component -->
+        <div v-if="showModal" class="modal-overlay" @click="closeModal">
+            <div class="modal-content" @click.stop>
+                <button class="modal-close" @click="closeModal">&times;</button>
+                <div class="modal-body">
+                    <h2>Thank You, {{ submittedData.name }}!</h2>
+                    <p>We have received your message and will get back to you soon.</p>
+                    <div class="submission-details">
+                        <h3>Your Message Details:</h3>
+                        <p><strong>Email:</strong> {{ submittedData.email }}</p>
+                        <p><strong>Message:</strong></p>
+                        <div class="message-content">{{ submittedData.message }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue
+
+        createApp({
+            data() {
+                return {
+                    formData: {
+                        name: '',
+                        email: '',
+                        message: ''
+                    },
+                    submittedData: {
+                        name: '',
+                        email: '',
+                        message: ''
+                    },
+                    errors: {
+                        name: '',
+                        email: '',
+                        message: ''
+                    },
+                    isSubmitting: false,
+                    showModal: false,
+                    focusedField: null,
+                    showShake: false,
+                    validationRules: {
+                        name: {
+                            minLength: 2,
+                            maxLength: 50,
+                            pattern: /^[a-zA-Z\s'-]+$/
+                        },
+                        email: {
+                            pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                        },
+                        message: {
+                            minLength: 10,
+                            maxLength: 500
+                        }
+                    }
+                }
+            },
+            computed: {
+                isFormValid() {
+                    return !this.errors.name && 
+                           !this.errors.email && 
+                           !this.errors.message &&
+                           this.formData.name.length >= this.validationRules.name.minLength &&
+                           this.formData.email.match(this.validationRules.email.pattern) &&
+                           this.formData.message.length >= this.validationRules.message.minLength &&
+                           this.formData.message.length <= this.validationRules.message.maxLength;
+                },
+                isMessageTooLong() {
+                    return this.formData.message.length > this.validationRules.message.maxLength;
+                }
+            },
+            methods: {
+                validateField(field) {
+                    const value = this.formData[field];
+                    const rules = this.validationRules[field];
+                    
+                    this.errors[field] = '';
+
+                    if (!value.trim()) {
+                        this.errors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
+                        return;
+                    }
+
+                    switch(field) {
+                        case 'name':
+                            if (value.length < rules.minLength) {
+                                this.errors[field] = `Name must be at least ${rules.minLength} characters`;
+                            } else if (value.length > rules.maxLength) {
+                                this.errors[field] = `Name must be less than ${rules.maxLength} characters`;
+                            } else if (!rules.pattern.test(value)) {
+                                this.errors[field] = 'Name can only contain letters, spaces, hyphens, and apostrophes';
+                            }
+                            break;
+
+                        case 'email':
+                            if (!rules.pattern.test(value)) {
+                                this.errors[field] = 'Please enter a valid email address';
+                            }
+                            break;
+
+                        case 'message':
+                            if (value.length < rules.minLength) {
+                                this.errors[field] = `Message must be at least ${rules.minLength} characters`;
+                            } else if (value.length > rules.maxLength) {
+                                this.errors[field] = `Message must be less than ${rules.maxLength} characters`;
+                            }
+                            break;
+                    }
+                },
+                validateForm() {
+                    ['name', 'email', 'message'].forEach(field => {
+                        this.validateField(field);
+                    });
+                    return this.isFormValid;
+                },
+                shakeButton() {
+                    this.showShake = true;
+                    setTimeout(() => {
+                        this.showShake = false;
+                    }, 500);
+                },
+                focusFirstError() {
+                    const firstError = Object.keys(this.errors).find(key => this.errors[key]);
+                    if (firstError) {
+                        this.$refs[`${firstError}Input`].focus();
+                    }
+                },
+                async submitForm() {
+                    if (!this.validateForm()) {
+                        this.shakeButton();
+                        this.focusFirstError();
+                        return;
+                    }
+
+                    this.isSubmitting = true;
+
+                    try {
+                        // Store the submitted data before resetting the form
+                        this.submittedData = {
+                            name: this.formData.name,
+                            email: this.formData.email,
+                            message: this.formData.message
+                        };
+
+                        // Simulate API call
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        
+                        // Show modal
+                        this.showModal = true;
+                        
+                        // Reset form
+                        this.formData = {
+                            name: '',
+                            email: '',
+                            message: ''
+                        };
+                        this.errors = {
+                            name: '',
+                            email: '',
+                            message: ''
+                        };
+                    } catch (error) {
+                        console.error('Error submitting form:', error);
+                    } finally {
+                        this.isSubmitting = false;
+                    }
+                },
+                closeModal() {
+                    this.showModal = false;
+                    // Focus the name input after modal closes
+                    this.$nextTick(() => {
+                        this.$refs.nameInput.focus();
+                    });
+                }
+            },
+            mounted() {
+                // Focus the name input when the form loads
+                this.$nextTick(() => {
+                    this.$refs.nameInput.focus();
+                });
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html> 
